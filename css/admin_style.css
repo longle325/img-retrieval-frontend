@@ -1,0 +1,125 @@
+main {
+    margin-top: 1%;
+    padding: 0;
+}
+
+#queue-view {
+    padding: 10px;
+    --num-cols: 4;
+    --row-height: 13.2vw;
+    --gap: 8px;
+    /* display: flex; */
+    width: 95vw;
+    height: 90vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+    margin: auto;
+    border-radius: 10px;
+    border: 7px solid #FC7F80;
+    display: grid;
+    grid-template-columns: repeat(var(--num-cols), 1fr);
+    grid-auto-rows: var(--row-height);
+    grid-auto-flow: row;
+    gap: var(--gap);
+}
+
+.headers {
+    /* position: fixed; */
+    height: 30px;
+    flex-direction: row;
+    display: flex;
+    width: 100%;
+    z-index: 1;
+}
+
+.title {
+    background: #FC7F80;
+    width: 100%;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.result-mode {
+    background-color: #FC7F80;
+    height: 30px;
+    width: 317px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.result-mode p {
+    height: 25px;
+    margin: 5px;
+    margin-left: 15px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    font-weight: bold;
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.title h1 {
+    position: relative;
+    right: 8%;
+    font-size: 17px;
+    font-weight: bold;
+    background: white;
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 3px;
+    border-radius: 10px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex
+}
+
+
+.imgContainer p{
+    border: 2px solid black;
+    border-radius: 5px;
+    top: -16%;
+    left: 35%;
+    position: relative;
+    padding: 2px;
+    width: 32%;
+    background: white;
+    position: relative;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.imgContainer img:hover{
+    scale: (1.05);
+}
+
+.keyframeImg {
+    cursor: pointer;
+    margin: 0;
+    height: 200px;
+    width: calc(240px * 1.5);
+    border: 3px solid black;
+    border-radius: 7px;
+}
+
+.submit-file {
+  max-width: 50px;
+}
+
+.label-name {
+  width: 200px;
+}

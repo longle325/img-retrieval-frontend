@@ -1,0 +1,114 @@
+/* Modal */
+.modal-dialog {
+  top: -15vh;
+}
+
+.modal-body {
+  background: black;
+  border-radius: 8px;
+}
+
+img {
+  max-width: 100%;
+}
+
+.gallery {
+  background-color: #dbddf1;
+  padding: 80px 0;
+}
+
+.gallery img {
+  border: 2px solid black;
+  background-color: #ffffff;
+  padding: 15px;
+  width: 100%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.carousel-item img{
+  width: 105%;
+  height: 105%;
+  border: 1.5px solid black;
+  border-radius: 5px;
+  filter: brightness(105%);
+}
+
+#gallery-modal .modal-img {
+  width: 100%;
+}
+
+/* Carousel */
+.carousel-inner {
+  padding: 0;
+}
+
+.card {
+  margin: 0 0.5em;
+  box-shadow: 2px 6px 8px 0 rgba(22, 22, 26, 0.18);
+  border: none;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  background-color: #e1e1e1;
+  width: 6vh;
+  height: 6vh;
+  border-radius: 30%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 768px) {
+  .carousel-item {
+    margin-right: 0;
+    flex: 0 0 10%;
+    display: block;
+  }
+
+  .carousel-inner {
+    display: flex;
+  }
+}
+
+.card .img-wrapper {
+  max-width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card img {
+  height: 105%;
+  width: 105%;
+}
+
+@media (max-width: 767px) {
+  .card .img-wrapper {
+    height: 17em;
+  }
+}
+
+.active {
+  width: 90%;
+  border: 4px solid red;
+}
+
+.img-wrapper {
+  text-align: center;
+}
+
+.img-wrapper p {
+  margin: 0;
+  position: absolute;
+  font-size: 12px;
+  align-items: center;
+  display: flex;
+  background: white;
+  color: black;
+  font-weight: bold;
+  border: 1.5px solid black;
+  height: 30%;
+  bottom: 0px;
+}
