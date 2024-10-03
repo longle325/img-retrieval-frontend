@@ -101,7 +101,8 @@ document.addEventListener("keydown", (e) => {
         }
 
         if (chosenImg) {
-          const session = "node01htgt4ew31vrfuydpjfx8lzb02";
+          const session = ''; // Tự set đi bro
+          // const session = "node01htgt4ew31vrfuydpjfx8lzb02";
           // const session = "node0ta25lhf8t1bsvu724zl5whfk12"
           let data = chosenImg.getAttribute("src");
           let item = data.split('/').slice(-2)[0];
