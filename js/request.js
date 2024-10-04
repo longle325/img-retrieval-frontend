@@ -333,6 +333,8 @@ function storePage(path, frame_idx){
   let PageX = [[]];
 
   path.forEach((directory, index) => {
+    // console.log(directory);
+    directory = "http://localhost:3031"+ directory 
     currentResultX.push([directory, frame_idx[index]]);
   });
 

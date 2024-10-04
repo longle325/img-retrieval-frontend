@@ -134,8 +134,8 @@ export function activeKeyFrameView(imgPath) {
   let innerCarousel = document.getElementById("carousel-inner");
   innerCarousel.innerHTML = "";
 
-  let path = "http://localhost:3031" + folderName + "/";
-
+  // let path = "http://localhost:3031" + folderName + "/";
+  let path = folderName;
   fetch(path).then((res) => {
     if (res.ok) {
       res.json().then((response) => {
