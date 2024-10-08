@@ -1,6 +1,6 @@
 import { contentGrid, currentMode} from "./document.js";
 import { queueImg, rejectImg } from "./client.js";
-
+import { isOffcanvasShown } from "./carousel.js";
 let api = "http://localhost:8053/";
 
 let random_pic_api = "http://localhost:8053/random_pic";
@@ -645,7 +645,7 @@ document.addEventListener("keydown", function(e){
   }
 
   if(isShownNearKeyFrameWindow){
-      if(e.key === 'a'){
+      if(e.key === 'a' && !isOffcanvasShown){
         e.preventDefault();
         currentPositionKeyframe = Math.max(currentPositionKeyframe - 64, 0);
         if(keyFrameWindowData && maxLenBatch){
@@ -653,7 +653,7 @@ document.addEventListener("keydown", function(e){
           console.log("move keyframe window left side");
         }
       }
-      if(e.key === 'd'){
+      if(e.key === 'd' && !isOffcanvasShown){
         e.preventDefault();
         currentPositionKeyframe = Math.min(currentPositionKeyframe + 64, maxLenBatch);
         if(keyFrameWindowData && maxLenBatch){
