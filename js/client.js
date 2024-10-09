@@ -21,9 +21,13 @@ export function emitQueueImg(img) {
     socket.emit("queue-image", img.getAttribute("src"), img.getAttribute('frame_idx'));
 }
 
-export function needingQuery(temp_query){
-    whole_query = temp_query;
-    socket.emit("update-query", temp_query)
+// export function needingQuery(temp_query) {
+//     whole_query = temp_query;
+//     socket.emit("update-query", temp_query)
+// }
+
+export function update_query(query) {
+    socket.emit("update-query", query);
 }
 
 function imgQueue() {
@@ -111,7 +115,11 @@ function resetBorder() {
 // ***------------------------------------Socket Events-----------------------------------------------***
 socket.on("connect", () => {
     console.log("CONNECTED");
-    
+
+});
+
+socket.on("get-query", (query) => {
+    whole_query = query;
 });
 
 socket.on("connect_error", (err) => {
@@ -170,7 +178,7 @@ socket.on("queue-update", (type, imgSrc) => {
     imgQueue();
     console.log('update');
 });
-socket.on("updated-query-box",(query)=>{
+socket.on("updated-query-box", (query) => {
     whole_query = query;
     console.log('query-box-updated');
 });

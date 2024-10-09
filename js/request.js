@@ -457,6 +457,7 @@ export async function fetchImageSearch(imgElement) {
         }
       ]
     };
+    console.log(data);
     let jsonData = JSON.stringify(data);
     post(jsonData, api);
   }
@@ -645,7 +646,7 @@ document.addEventListener("keydown", function(e){
   }
 
   if(isShownNearKeyFrameWindow){
-      if(e.key === 'a'){
+      if(e.key === 'a' ){
         e.preventDefault();
         currentPositionKeyframe = Math.max(currentPositionKeyframe - 64, 0);
         if(keyFrameWindowData && maxLenBatch){
