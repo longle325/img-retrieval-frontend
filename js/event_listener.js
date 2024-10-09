@@ -1,6 +1,7 @@
-import { currentResult, targetImg, fetchImageSearch, pageMove, openWin, switching_Collection, collectionSwitchBtn, SwitchStateOfTemporal, post,isShownNearKeyFrameWindow } from "./request.js";
+import { currentResult, targetImg, fetchImageSearch, pageMove, openWin, switching_Collection, collectionSwitchBtn, SwitchStateOfTemporal, post,isShownNearKeyFrameWindow  } from "./request.js";
 import { createToast } from "./notification.js";
 import { myModal, myOffcanvas, myCarousel, activeKeyFrameView, isOffcanvasShown, offcanvasImg } from "./carousel.js";
+import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
 import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
 
 // ***----------------------------------------------Standard Events---------------------------------------------***
@@ -16,7 +17,7 @@ document.addEventListener("contextmenu", function (e) {
 });
 
 // Switch State of temporal search
-document.getElementById('StateOfTemporal').addEventListener("click", function (e) {
+document.getElementById('StateOfTemporal').addEventListener("click", function  (e)  {
   SwitchStateOfTemporal();
 })
 
@@ -40,12 +41,12 @@ document.addEventListener("keydown", (e) => {
   }
 
   if (e.ctrlKey) {
-    if (e.altKey && !e.shiftKey) {
+    if (e.altKey && !e.shiftKey)  {
       e.preventDefault();
       SwitchStateOfTemporal();
     }
 
-    if (e.key === "`" && !isOffcanvasShown) {
+    if (e.key === "`" && !isOffcanvasShown)  {
       e.preventDefault();
       switch_searchTab();
     }
@@ -61,7 +62,7 @@ document.addEventListener("keydown", (e) => {
     }
 
     // Open video
-    if (e.key === "v" && isOffcanvasShown) {
+    if  (e.key === "v" && isOffcanvasShown)  {
       console.log("ctrl + v and turn on video");
       e.preventDefault();
       const src = document.querySelector(".modal-body").querySelector("img").src;
@@ -81,19 +82,19 @@ document.addEventListener("keydown", (e) => {
 
         currentResult.length = 0;
         fetchImageSearch(ModalImg);
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        window.scrollTo({  top: 0, behavior: 'instant'  });
       }
 
       if (targetImg) {
         currentResult.length = 0;
         fetchImageSearch(targetImg);
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        window.scrollTo({  top: 0, behavior: 'instant'  });
       }
     }
 
     if (e.key == "e") {
       e.preventDefault();
-      if (document.activeElement.tagName.toLowerCase() != "textarea") {
+      if (document.activeElement.tagName.toLowerCase() != "textarea")  {
         let chosenImg = "";
         if (isOffcanvasShown) {
           chosenImg = document.querySelector(".modal-body img");
@@ -114,6 +115,7 @@ document.addEventListener("keydown", (e) => {
       }
     }
 
+    if (e.key == '/') {
     if (e.key == '/') {
       e.preventDefault();
       let query_box = document.querySelector(".query-box");
@@ -185,7 +187,7 @@ document.addEventListener("keydown", (e) => {
         document.getElementById(`ocr1`).value = "";
     }
   }
-});
+}});
 
 document
   .getElementById("carouselExampleControls")
@@ -231,7 +233,7 @@ document.getElementById("gallery-modal").addEventListener("shown.bs.modal", (_) 
   }
 });
 
-function switch_searchTab() {
+function switch_searchTab()  {
   let searchTab = document.getElementById('searchTab');
   let searchTextarea = document.getElementById("inputBlock0");
   let transcriptTab = document.getElementById('transcriptTab');
@@ -256,7 +258,7 @@ function switch_searchTab() {
 }
 
 // switch collection
-collectionSwitchBtn.addEventListener("click", function (e) {
+collectionSwitchBtn.addEventListener("click",  function  (e)  {
   switching_Collection();
 })
 
