@@ -411,6 +411,7 @@ function createResult(response){
 
 
 export function post(data, api) {
+  console.log(api);
   fetch(api, {
     method: "POST",
     headers: {

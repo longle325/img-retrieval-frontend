@@ -2,7 +2,7 @@ import { currentResult, targetImg, fetchImageSearch, pageMove, openWin, switchin
 import { createToast } from "./notification.js";
 import { myModal, myOffcanvas, myCarousel, activeKeyFrameView, isOffcanvasShown, offcanvasImg } from "./carousel.js";
 import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
-import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
+// import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
 
 // ***----------------------------------------------Standard Events---------------------------------------------***
 let temp_query = ''

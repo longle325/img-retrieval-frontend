@@ -191,6 +191,8 @@ export function transmode() {
 export async function get_text_translated_en() {
   const text0 = document.getElementById("inputBlock0").value
   const text1 = document.getElementById("inputBlock1").value
+  // console.log(text0);
+  // console.log(text1);
   if (text0) {
     console.log('fetching time');
     const response0 = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=en&dt=t&q=${encodeURIComponent(text0)}`);
@@ -203,6 +205,22 @@ export async function get_text_translated_en() {
         translatedText0 += data0[0];
       }
       document.getElementById("inputBlock0").value = translatedText0;
+    }
+  }
+  if (text1) {
+    console.log("inputBlock1 contains key!");
+    console.log('fetching time');
+    const response1 = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=en&dt=t&q=${encodeURIComponent(text1)}`);
+
+    if (response1.ok) {
+      const res1 = await response1.json();
+      const datas1 = res1[0];
+      let translatedText1 = ""; // Use a different variable to build the translated text
+      for (let data1 of datas1) {
+        translatedText1 += data1[0];
+      }
+      console.log("dit me ");
+      document.getElementById("inputBlock1").value = translatedText1;
     }
   }
 }
