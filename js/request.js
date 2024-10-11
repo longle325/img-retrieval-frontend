@@ -457,6 +457,7 @@ export async function fetchImageSearch(imgElement) {
         }
       ]
     };
+    console.log(data);
     let jsonData = JSON.stringify(data);
     post(jsonData, api);
   }

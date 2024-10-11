@@ -92,26 +92,55 @@ document.getElementById("request").addEventListener("keydown", function (e) {
       }
     }
     else {
+      const src = document.getElementById("image-fuck").value;
       isASR = true;
-      let transcriptValue = document.getElementById("inputBlock3").value;
-      let res = {
-        query: [
-          {
-            textual: "",
-            objects: "",
-            colors: "",
-            ocr: "",
-            imgPath: "",
-            asr: transcriptValue,
-            metadata: "",
-            collection : currentCollection
-          }
-        ]
-      };
-      reset();
-      res = JSON.stringify(res);
-      console.log(res);
-      post(res, api);
+      if (src){
+          let res = {
+            query: [
+              {
+                textual: "",
+                objects: "",
+                colors: "",
+                ocr: "",
+                imgPath: src,
+                asr: "",
+                metadata: "",
+                collection : "",
+              }
+            ]
+          };
+          console.log(src);
+          reset();
+          res = JSON.stringify(res);
+          console.log(res);
+          post(res, api);
+          
+          // console.log(data);
+          // let jsonData = JSON.stringify(data);
+          // post(jsonData, api);
+        }
+      else{
+        let transcriptValue = document.getElementById("inputBlock3").value;
+        let res = {
+          query: [
+            {
+              textual: "",
+              objects: "",
+              colors: "",
+              ocr: "",
+              imgPath: "",
+              asr: transcriptValue,
+              metadata: "",
+              collection : currentCollection
+            }
+          ]
+        };
+        reset();
+        res = JSON.stringify(res);
+        console.log(res);
+        post(res, api);
+      }
+
     }
     document.activeElement.blur();
   }
