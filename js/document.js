@@ -176,18 +176,39 @@ export async function get_text_translated_en() {
       document.getElementById("inputBlock0").value = translatedText0;
     }
   }
+}
 
-  if (text1) {
-    const response1 = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=en&dt=t&q=${encodeURIComponent(text1)}`);
-    if (response1.ok) {
-      const res1 = await response1.json();
-      const datas1 = res1[0];
-      let translatedText1 = ""; // Use a different variable to build the translated text
-      for (let data1 of datas1) {
-        translatedText1 += data1[0];
-      }
-      document.getElementById("inputBlock1").value = translatedText1;
+export async function get_text_reprompt() {
+  const text0 = document.getElementById("inputBlock0").value
+  const text1 = document.getElementById("inputBlock1").value
+
+  const data = {
+    prompt1: text0
+  }
+  if(text1) {
+    data = {
+      prompt1: text0,
+      prompt2: text1
     }
+  }
+
+  console.log(JSON.stringify(data))
+
+  console.log('fetching time');
+  const response = await fetch(`http://localhost:8053/reprompt`,
+    {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+  if (response.ok) {
+    const res = await response.json();
+    document.getElementById("inputBlock0").value = res.repromptedText1;
+    document.getElementById("inputBlock1").value = res.repromptedText2;
   }
 }
 
@@ -229,6 +250,11 @@ document.addEventListener("keydown", function (event) {
   if (event.key === 'g' && event.ctrlKey) {
     event.preventDefault();
     transmode();
+  }
+  if (event.key === 'p' && event.ctrlKey) {
+    event.preventDefault();
+    console.log('key registered');
+    get_text_reprompt();
   }
   if (event.key === 'y' && event.ctrlKey) {
     event.preventDefault();

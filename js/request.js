@@ -486,7 +486,10 @@ rightPageBtn.addEventListener("click", () => pageMove("right"));
 // Switch collection - Beit or Clip
 export const collectionSwitchBtn = document.getElementById('collection-switch');
 export function switching_Collection(){
-  currentCollection = (currentCollection == "beit") ? "clip": "beit";
+  // currentCollection = (currentCollection == "beit") ? "clip": "beit";
+  if(currentCollection === "beit") currentCollection = "merge";
+  else if (currentCollection === "merge") currentCollection = "clip";
+  else currentCollection = "beit"
   console.log("Current used collection:", currentCollection);
   collectionSwitchBtn.innerHTML = currentCollection;
   document.getElementById(`inputBlock0`).focus();

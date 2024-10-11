@@ -101,14 +101,12 @@ document.addEventListener("keydown", (e) => {
         }
 
         if (chosenImg) {
-          const session = ''; // Tự set đi bro
-          // const session = "node01htgt4ew31vrfuydpjfx8lzb02";
-          // const session = "node0ta25lhf8t1bsvu724zl5whfk12"
+          const session = 'node01wt0egi6zh7rhi15j1ctt3hd249'; // Tự set đi bro
           let data = chosenImg.getAttribute("src");
           let item = data.split('/').slice(-2)[0];
           let frame = data.split('/').slice(-1)[0].split('.')[0];
 
-          fetch(`http://127.0.0.1:1992/api/v1/submit?item=${item}&frame=${frame}&session=${session}`)
+          fetch(`http://192.168.20.164:5000/api/v1/submit?item=${item}&frame=${frame}&session=${session}`)
           createToast("success", `Submitted: ${item}_${frame}`);
         }
       }
