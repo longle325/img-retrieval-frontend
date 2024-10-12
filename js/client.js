@@ -1,6 +1,7 @@
 import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
 import { createToast } from "./notification.js";
 import { isModalShown } from "./carousel.js"
+// import { update_query_box} from "./event_listener.js";   
 // ***----------------------------------------------Public variables------------------------------------***
 
 export let queueImg = [];
@@ -20,11 +21,6 @@ export function notifyStatus() {
 export function emitQueueImg(img) {
     socket.emit("queue-image", img.getAttribute("src"), img.getAttribute('frame_idx'));
 }
-
-// export function needingQuery(temp_query) {
-//     whole_query = temp_query;
-//     socket.emit("update-query", temp_query)
-// }
 
 export function update_query(query) {
     socket.emit("update-query", query);
@@ -119,7 +115,8 @@ socket.on("connect", () => {
 });
 
 socket.on("get-query", (query) => {
-    whole_query = query;
+    whole_query = query; 
+    // update_query_box(whole_query)
 });
 
 socket.on("connect_error", (err) => {

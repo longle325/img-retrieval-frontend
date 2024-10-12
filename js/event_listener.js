@@ -2,11 +2,12 @@ import { currentResult, targetImg, fetchImageSearch, pageMove, openWin, switchin
 import { createToast } from "./notification.js";
 import { myModal, myOffcanvas, myCarousel, activeKeyFrameView, isOffcanvasShown, offcanvasImg } from "./carousel.js";
 import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
-import { queueImg, rejectImg, submitImg, notifyStatus, emitQueueImg, whole_query, update_query } from "./client.js";
 
 // ***----------------------------------------------Standard Events---------------------------------------------***
 let temp_query = ''
 let api = "http://localhost:8053/";
+let query_box = document.querySelector(".query-box");
+let query_text = query_box.querySelector("textarea");
 // Chuột phải
 document.addEventListener("contextmenu", function (e) {
   // Nếu element là hình keyframe: Hiện Offcanvas + Modal
@@ -108,19 +109,16 @@ document.addEventListener("keydown", (e) => {
           let item = data.split('/').slice(-2)[0];
           let frame = data.split('/').slice(-1)[0].split('.')[0];
 
-          fetch(`http://192.168.20.164:5000/api/v1/submit?item=${item}&frame=${frame}&session=${session}`)
+          fetch(`http://192.168.20.164:5002/api/v1/submit?item=${item}&frame=${frame}&session=${session}`)
           createToast("success", `Submitted: ${item}_${frame}`);
         }
       }
     }
 
     if (e.key == '/') {
-    if (e.key == '/') {
       e.preventDefault();
-      let query_box = document.querySelector(".query-box");
-      let query_text = query_box.querySelector("textarea");
+
       if (query_box.style.display == 'block') {
-        update_query(query_text.value);
         query_box.style.display = 'none';
       }
 
@@ -156,13 +154,13 @@ document.addEventListener("keydown", (e) => {
         }
       }
     }
-
   }
 
   if (e.altKey) {
     let sectionNum = '1';
-    if (document.activeElement.tagName.toLocaleLowerCase() == "textarea")
+    if (document.activeElement.tagName.toLocaleLowerCase() == "textarea"){
       sectionNum = document.activeElement.getAttribute("id").slice(-1);
+    }
     switch (e.key) {
       case "`": // Switch between textaread field of the "current scene" or the "next scene"
         document.getElementById(`inputBlock${sectionNum == '0' ? '1' : '0'}`).focus();
@@ -176,6 +174,7 @@ document.addEventListener("keydown", (e) => {
         document.getElementById(`ocr${sectionNum}`).value = "";
         break;
       case "3": // Clear all the input of every textarea field
+        console.log('im here mtfk');
         document.getElementById(`inputBlock0`).value = "";
         document.getElementById(`object0`).value = "";
         document.getElementById(`color0`).value = "";
@@ -186,7 +185,7 @@ document.addEventListener("keydown", (e) => {
         document.getElementById(`ocr1`).value = "";
     }
   }
-}});
+});
 
 document
   .getElementById("carouselExampleControls")
@@ -268,10 +267,16 @@ document.addEventListener("keydown", function (e) {
   }
 })
 
-// document.getElementById('image-search').addEventListener('keydown',function(e){
-  // if (e.key == "Enter"){
-// 
-// }
-// })
-// 
+export function update_query_box(query){
+  query_text.value = query;
+}
+
+query_box.addEventListener('keydown',function(e){
+  if (query_box.style.display == 'block'){
+
+    update_query(query_text.value)
+  
+  }
+})
+ 
 

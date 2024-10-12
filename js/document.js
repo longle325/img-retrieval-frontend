@@ -84,6 +84,7 @@ document.getElementById("request").addEventListener("keydown", function (e) {
             const data = await getData();
             console.log("input data: ")
             console.log(data);
+            console.log(api);
             post(data, api);
           } catch (error) {
             console.error("Error:", error);
