@@ -138,10 +138,10 @@ document.addEventListener("keydown", (e) => {
       } else {
         chosenImg = targetImg;
         targetImg.style.border = "4px solid yellow";
-        queueImg.push(targetImg.src);
       }
 
       if (chosenImg) {
+	console.log(queueImg);
         if (rejectImg.includes(chosenImg.getAttribute("src")))
           createToast("danger", "Oops, this image was rejected before!");
         else if (queueImg.includes(chosenImg.getAttribute("src")))
@@ -153,6 +153,7 @@ document.addEventListener("keydown", (e) => {
           emitQueueImg(chosenImg);
         }
       }
+      queueImg.push(targetImg.src);
     }
   }
 
