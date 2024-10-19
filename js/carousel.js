@@ -1,3 +1,5 @@
+import { createToast } from "./notification.js";
+
 // ***------------------------------------Public Variables-----------------------------------------------***
 export const myModal = new bootstrap.Modal(document.getElementById("gallery-modal"));
 export const myOffcanvas = new bootstrap.Offcanvas(
@@ -158,15 +160,16 @@ export function activeKeyFrameView(imgPath) {
         console.log(cardWidth);
         scrollPosition = (index - 1) * cardWidth;
         slideCarousel();
-        initialPos = cardWidth*4;
+        initialPos = cardWidth * 4;
         updateOffcanvasTitle();
         myModal.show();
         myOffcanvas.show();
       });
     } else {
-      console.log("CANNOT GET KEYFRAME NAMES!");
+      createToast("danger", "CANNOT GET KEYFRAME NAMES!");
     }
-  });
+  })
+  .catch(e => createToast("danger", `ERROR: ${e.message}`));
 }
 
 // ***------------------------------------Carousel Events-----------------------------------------------***

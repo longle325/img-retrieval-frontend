@@ -13,6 +13,37 @@ let color1 = "";
 let ocr0 = "";
 let ocr1 = "";
 
+function modifyTextualData(query){
+  query = query.replace("http://localhost:3031", "")
+  query = query.replace("keyframe_resized", "keyframe")
+  query = query.replace("webp", "jpg")
+
+  let splittedParts = query.split('/');
+  let frame = splittedParts[splittedParts.length - 1];
+  splittedParts.pop();
+  let video_name = splittedParts[splittedParts.length - 1];
+  splittedParts.pop();
+  let video_batch = splittedParts[splittedParts.length - 1];
+  splittedParts.pop();
+
+  if (video_name < "L13_V001") {
+    video_batch = "data-batch-1";
+  }
+  else if (video_name >= "L25_V001") {
+    video_batch = "data-batch-3";
+  }
+  else {
+    video_batch = "data-batch-2";
+  }
+  splittedParts.push(video_batch);
+  splittedParts.push(video_name);
+  splittedParts.push(frame);
+  query = splittedParts.join('/');
+  console.log(query);
+  return query;
+
+}
+
 async function getData() {
   let res = {
     query: [
@@ -147,7 +178,7 @@ document.getElementById("request").addEventListener("keydown", function (e) {
   }
 });
 
-export let currentMode = 'video group';
+export let currentMode = 'similarity search';
 export let toggle = document.querySelector('.buttonToggle');
 export let circle = document.querySelector('.circle');
 export let bg = document.querySelector('.result-mode');
@@ -167,9 +198,9 @@ export function transmode() {
     contentGrid.style.top = '29px';
     line.style.borderBottom = '6px solid #82EA9E';
     title.style.background = '#82EA9E';
-
-  } else if (currentMode === 'similarity search') {
-    circle.style.transform = 'translateX(13px)';
+  } 
+  else if (currentMode === 'similarity search') {
+    circle.style.transform = 'translateX(12px)';
     circle.style.background = '#7CB9E8';
     currentMode = 'video group';
     bg.style.background = '#7CB9E8';
@@ -204,6 +235,20 @@ export async function get_text_translated_en() {
         translatedText0 += data0[0];
       }
       document.getElementById("inputBlock0").value = translatedText0;
+    }
+  }
+  if (text1) {
+    console.log('fetching time');
+    const response1 = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=vi&tl=en&dt=t&q=${encodeURIComponent(text1)}`);
+
+    if (response1.ok) {
+      const res1 = await response1.json();
+      const datas1 = res1[0];
+      let translatedText1 = ""; // Use a different variable to build the translated text
+      for (let data1 of datas1) {
+        translatedText1 += data1[0];
+      }
+      document.getElementById("inputBlock1").value = translatedText1;
     }
   }
 }

@@ -66,9 +66,25 @@
         </div>
         <div class="modal-body text-bg-light">
           <div class="input-group">
-            <input class="form-control" type="text" placeholder="Ex: query1" id="file-name-input" aria-describedby="basic-addon3 basic-addon4">
+            <input class="form-control" type="text" placeholder="Ex: query1" id="file-name-input"
+              aria-describedby="basic-addon3 basic-addon4">
             <span class="input-group-text" id="basic-addon3">.csv</span>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="mode-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Welcome to Admin!</h4>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary mode-btn">Practice Mode</button>
+          <button type="button" class="btn btn-primary mode-btn">Competition Mode</button>
         </div>
       </div>
     </div>
@@ -78,50 +94,47 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Submit to CSV</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title">Submission</h5>
         </div>
         <div class="modal-body text-bg-light">
-          <div class="input-group mb-3">
-            <span class="input-group-text label-name" id="basic-addon3">File name:</span>
-            <span class="input-group-text">query-p</span>
-            <input class="form-control submit-file" type="text" id="qs-pack" aria-describedby="basic-addon3 basic-addon4">
-            <span class="input-group-text">-</span>
-            <input class="form-control submit-file" type="text" id="question" aria-describedby="basic-addon3 basic-addon4">
-            <span class="input-group-text">-</span>
-            <input class="form-control submit-file" type="text" id="qs-type" aria-describedby="basic-addon3 basic-addon4">
-            <span class="input-group-text">.csv</span>
-          </div>
-          <div class="input-group mb-3">
-            <span class="input-group-text label-name" id="basic-addon3">Video name:</span>
-            <input class="form-control" type="text" id="video-name" aria-describedby="basic-addon3 basic-addon4">
-          </div>
-          <div class="input-group mb-3">
-            <span class="input-group-text label-name" id="basic-addon3">Frame index:</span>
-            <input class="form-control" type="text" id="frame-idx" aria-describedby="basic-addon3 basic-addon4">
-          </div>
-          <div class="input-group mb-3">
-            <span class="input-group-text label-name" id="basic-addon3">Answer (optional):</span>
-            <input class="form-control" type="text" placeholder="ex: 69" id="answer" aria-describedby="basic-addon3 basic-addon4">
+          <div class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text" id="basic-addon3">Answer:</span>
+              <input type="text" class="form-control" id="qa-answer" placeholder="Optional"
+                aria-describedby="basic-addon3 basic-addon4">
+              <span class="input-group-text" id="basic-addon3">Video ID:</span>
+              <input type="text" class="form-control" id="video-id" aria-describedby="basic-addon3 basic-addon4"
+                disabled>
+              <span class="input-group-text" id="basic-addon3">Frame Index:</span>
+              <input type="text" class="form-control" id="frame-idx" aria-label="Start" disabled>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="submit-btn">Submit</button>
+          <button type="button" id="submit-btn" class="btn btn-primary">Submit</button>
         </div>
       </div>
     </div>
   </div>
   <!-------------------------------------End of Modal-------------------------------------->
+
+
+
   <div class="headers">
     <div class="result-mode">
       <p>Admin</p>
     </div>
     <div class="title">
-      <h1>Stubborn Strawberries</h1>
+      <img
+        src="http://localhost:3031/mlcv2/WorkingSpace/Personal/longlb/AIC_2024/Image_Retrieval/frontend/image/straw.png"
+        class='straw' alt="">
     </div>
   </div>
   <main>
     <div id="queue-view"></div>
+    <div class="nearest-keyframes">
+      <i class='bx bx-x' id="close-near-kf"></i>
+    </div>
   </main>
 
 
@@ -130,6 +143,7 @@
     <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
     </div>
   </div>
+
 
 
   <!-- JQuery -->

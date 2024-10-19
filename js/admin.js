@@ -1,77 +1,27 @@
 import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
 import { createToast } from "./notification.js";
 import { myModal, myOffcanvas, myCarousel, activeKeyFrameView } from "./carousel.js";
+import { submit_KIS_or_QNA, get_session_ID, get_evaluationID } from "./fetching.js";
 
-let submit_url = "http://localhost:8053/submit";
+const modeModal = new bootstrap.Modal(document.getElementById("mode-modal"));
+modeModal.toggle();
+const submitModel = new bootstrap.Modal(document.getElementById("submit-modal"));
+
 let queue_view = document.querySelector('#queue-view');
 let targetImg = "";
-let selectedSrc = "";
-let selectedFile = "";
 let isOffcanvasShown = false;
-
-let submitModal = new bootstrap.Modal(document.getElementById('submit-modal'));
-
-let isAddFileModal = false;
-
-function loadModalContent() {
-  // Content
-  document.getElementById("video-name").setAttribute("value", selectedSrc.split("/").slice(-2)[0]);
-  document.getElementById("frame-idx").setAttribute("value", selectedSrc.split("/").slice(-1)[0].split(".")[0]);
-  document.getElementById("answer").value = "";
-}
-
-function submit() {
-  let qs_pack = document.getElementById("qs-pack").value;
-  let question = document.getElementById("question").value;
-  let qs_type = document.getElementById("qs-type").value;
-
-  let file_name = `query-p${qs_pack}-${question}-${qs_type}.csv`;
-  let video_name = document.getElementById("video-name").value;
-  let frame_idx = parseInt(document.getElementById("frame-idx").value);
-  let answer = document.getElementById("answer").value;
-
-  let submitData = {
-    "file_name": file_name,
-    "vid_name": video_name,
-    "frame_idx": frame_idx,
-    "answer": answer
-  }
-  console.log(submitData);
-  fetch(submit_url, {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(submitData),
-  })
-    .then((res) => {
-      if (res.ok) {
-        console.log("SUCCESS");
-        res.json().then((response) => {
-          createToast("success", `Added submission to ${response.file_name}: ${response.vid_name}, ${response.frame_idx}` + (response.answer ? `, ${response.answer}` : ""));
-          socket.emit("submit-image", selectedSrc);
-          targetImg = "";
-        });
-      } else {
-        console.log("Not successful");
-        console.log("Status: " + res.status);
-        console.log("Status Text: " + res.statusText);
-        res.text().then((text) => console.log("Response Body: " + text));
-        createToast("danger", "Cannot submit image.");
-      }
-    })
-    .catch((error) => {
-      console.log("Fetch error: ", error);
-      createToast("danger", "Cannot submit image.");
-    });
-}
-
+let mode = "";
+let sessionID = "";
+let evaluationID = "";
+let loginName = "Admin";
 
 export function get_video_path_m3u8(video_name) {
   let video_path = ""
   if (video_name < "L13_V001"){
     video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch1_audio/";
+  }
+  else if (video_name >="L15_V001"){
+    video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch3/";
   }
   else{
     video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch2_audio/";
@@ -160,19 +110,62 @@ document.addEventListener("keydown", function (e) {
   if (e.key == "z") {
     myModal.toggle();
   }
-	
+
   if (e.key == 'q' && targetImg) {
     socket.emit("reject-image", targetImg.getAttribute("src"));
     targetImg = "";
   }
+
   if (e.ctrlKey) {
-    if (e.key == 'e' && targetImg) {
+    // if (e.key == 'b' && targetImg){
+
+    //   // currentResult.length = 0;
+    //   console.log(targetImg);
+    //   const src = targetImg.getAttribute("src") || targetImg.getAttribute("data-lazy");
+    //   let win = window.open(
+    //     `http://localhost:3031/?src=${encodeURIComponent(src)}`, // Use backticks for template literals
+    //     null,
+    //     "popup"
+    //   )
+    //   window.scrollTo({  top: 0, behavior: 'instant'  });
+
+
+    //   const getPath = encodeURIComponent(get_video_path_m3u8(vid_name));
+    //   const getFrame = encodeURIComponent(frame_idx);
+    //   Open the new window with the specified URL and dimensions
+
+
+    //   );
+    // }
+
+
+    if (e.key == 'e') {
       e.preventDefault();
-      selectedSrc = targetImg.getAttribute("src");
-      loadModalContent();
-      submitModal.toggle();
-      targetImg = "";
+      if (document.activeElement.tagName.toLowerCase() != "textarea") {
+        let chosenImg = "";
+        if (isOffcanvasShown) {
+          chosenImg = document.querySelector(".modal-body img");
+        } else {
+          chosenImg = targetImg;
+        }
+
+        if (chosenImg) {
+          let videoID = chosenImg.src.split("/").slice(-2)[0];
+          let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
+          if (mode == "practice") {
+            submit_KIS_or_QNA(loginName, socket, "", videoID, frameIdx, "KIS", sessionID, evaluationID, mode);
+          } else {
+            document.getElementById("video-id").value = videoID;
+            document.getElementById("frame-idx").value = frameIdx;
+            submitModel.toggle();
+            document.getElementById("qa-answer").focus();
+          }
+
+        }
+      }
     }
+
+
     if (e.key == "\\") {
       e.preventDefault();
       socket.emit('empty-queue');
@@ -184,27 +177,9 @@ document.addEventListener("keydown", function (e) {
       const frameidx = imgSrc.split("/").slice(-1)[0].split(".")[0];
       openWin(videoName, frameidx);
     }
-    if(e.key == 'x'){
-      let chosenImg = "";
-      
-      if (isOffcanvasShown) {
-        chosenImg = document.querySelector(".modal-body img");
-      } else {
-        chosenImg = targetImg;
-      }
-
-      if(chosenImg){
-        const session = "node01htgt4ew31vrfuydpjfx8lzb02";
-        // const session = "node0ta25lhf8t1bsvu724zl5whfk12"
-        let data = chosenImg.getAttribute("src");
-        let item = data.split('/').slice(-2)[0];
-        let frame = data.split('/').slice(-1)[0].split('.')[0];
-        fetch(`http://127.0.0.1:1992/api/v1/submit?item=${item}&frame=${frame}&session=${session}`);
-        createToast("success", `Submitted: ${item}_${frame}`);
-      }
-    }
   }
-});
+}
+);
 
 // Chuột phải
 document.addEventListener("contextmenu", function (e) {
@@ -216,19 +191,12 @@ document.addEventListener("contextmenu", function (e) {
   }
 });
 
-document.getElementById("submit-btn").addEventListener("click", _ => {
-  //submit_to_server();
-  submit();
-  submitModal.toggle();
-})
-
 
 document.addEventListener('click', function (e) {
   if (e.target.classList.contains("keyframeImg")) {
     const path = e.target.getAttribute('src');
     const videoName = path.split("/").slice(-2)[0];
     const frameidx = path.split("/").slice(-1)[0].split(".")[0];
-    // console.log(videoName,frameidx);
     openWin(videoName, frameidx);
   }
 })
@@ -239,4 +207,201 @@ document.getElementById("add-file-modal").addEventListener("shown-bs-modal", _ =
 
 document.getElementById("add-file-modal").addEventListener("hidden-bs-modal", _ => {
   isAddFileModal = false;
+});
+
+export let currentPositionKeyframe = 0;
+export let isShownNearKeyFrameWindow = 0;
+export let keyFrameWindowData = null;
+export let maxLenBatch = 0;
+export let originalKFIndex = 0;
+
+function createImgElement(directory, frame_idx){
+  const imgElement = document.createElement("img");
+  imgElement.setAttribute("data-lazy", directory);
+  imgElement.setAttribute("class", "keyframeImg");
+  imgElement.setAttribute('frame_idx', frame_idx);
+
+
+  imgElement.addEventListener("mouseenter", function (event) {
+    event.preventDefault();
+    targetImg = imgElement;
+    // console.log(targetImg);
+  });
+
+  imgElement.addEventListener("mouseleave", function (event) {
+    event.preventDefault();
+    targetImg = "";
+  });
+
+  return imgElement;
+}
+
+function createKeyFrameImg(currentKFIndex){
+  let keyframeGrid = document.querySelector(".nearest-keyframes");
+  keyframeGrid.innerHTML = "<i class='bx bx-x' id='close-near-kf'></i>"; // reset - innercontent need to have cls button
+
+  const closeButton = document.querySelector("#close-near-kf");
+  if (closeButton) {
+    closeButton.addEventListener("click", function() {
+      console.log("close");
+      document.querySelector(".nearest-keyframes").style.display = "none";
+      document.querySelector(".nearest-keyframes").style.transform = "";
+      document.querySelector(".contentGrid").style.filter = "";
+      document.body.style.overflow = "";
+      isShownNearKeyFrameWindow = 0;
+    });
+  }
+
+  let divElement = document.createElement("div");
+  divElement.setAttribute("class", "lil-kf");
+
+  keyframeGrid.scrollTo({top: 0, behavior: 'instant'});
+
+
+  for(let i = Math.max(0, currentKFIndex - 32); i < Math.min(maxLenBatch, currentKFIndex + 32); i++){ // 30 previous keyframes and 30 next keyframes
+
+    let path = keyFrameWindowData[i];
+    const segments = path.split("/");
+    const vid_name = segments[segments.length - 2];
+    const frame_idx = segments[segments.length - 1].split(".")[0];
+    let video_name = vid_name + "_" + frame_idx;
+
+    // tạo Element chứa link dẫn tới vid của frame
+    const linkElement = document.createElement("a");
+    linkElement.setAttribute("target", "_blank");
+    linkElement.setAttribute("rel", "noreferrer noopener");
+
+    linkElement.addEventListener("click", function (ev) { // CLick ảnh sẽ dẫn tới video
+      ev.preventDefault();
+      openWin(vid_name, frame_idx);
+    });
+
+    // Tạo element ảnh từ directory
+    const imgElement = createImgElement(path, frame_idx);
+    imgElement.src = path;
+
+    if(i === originalKFIndex){
+      imgElement.style.border = '8px solid blue';
+      console.log("find the blue kf");
+    }
+
+    // Video name và keyframe của mỗi ảnh for identification
+    const name = document.createElement("p");
+    name.innerHTML = video_name;
+
+    linkElement.appendChild(imgElement);
+    linkElement.appendChild(name);
+    divElement.appendChild(linkElement);
+  }
+  keyframeGrid.appendChild(divElement);
+
+  for (const directory of queueImg) {
+    if(document.querySelector(`[src = "${directory}"]`)) document.querySelector(`[src = "${directory}"]`).style.border = "4px solid yellow";
+  }
+
+  for (const dir of rejectImg) { // Rejected imgs
+    if(document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
+  }
+} 
+
+// Nearest keyframes search
+export function nearestKeyFrameSearch() {
+  // Get the fetch path and save the original target index @@
+  let FrameSrc = targetImg.src;
+  let splittedKeyFramePath = FrameSrc.split('/');
+  let kfIdx = splittedKeyFramePath[splittedKeyFramePath.length - 1].split('.')[0];
+  splittedKeyFramePath.pop();
+  let videoName = splittedKeyFramePath[splittedKeyFramePath.length - 1];
+  splittedKeyFramePath.pop();
+  splittedKeyFramePath.pop();
+  let pathForFetch = splittedKeyFramePath.join('/') + '/json/' + videoName +'.json';
+
+  FrameSrc = FrameSrc.replace("http://localhost:3031", "");
+
+  maxLenBatch = 0;
+
+  // Fetch the JSON data path
+  fetch(pathForFetch)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Response was not ok " + response.statusText);
+      }
+      return response.json();
+    })
+    .then(data => { // data is a video batch in json format that has the target frame idx
+
+      // console.log(data);
+
+      keyFrameWindowData = data;
+
+      Object.entries(keyFrameWindowData).forEach(([key, value]) => {
+        maxLenBatch = Math.max(maxLenBatch, key);
+        if(FrameSrc === value){
+          currentPositionKeyframe = Number(key);
+        }
+      });
+      originalKFIndex = currentPositionKeyframe;
+
+      createKeyFrameImg(currentPositionKeyframe);
+
+
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+
+}
+
+document.addEventListener("keydown", function(e){
+  if(e.ctrlKey && e.key === 's'){
+    e.preventDefault();
+
+    isShownNearKeyFrameWindow = 1;
+
+    nearestKeyFrameSearch();
+
+    document.querySelector(".nearest-keyframes").style.display = "flex";
+    document.querySelector(".nearest-keyframes").style.transform = `translateY(${window.scrollY}px)`; // the pop up nearKeyFrameWindow follow wherever the window scroll to
+    document.querySelector(".contentGrid").style.filter = "blur(4px) brightness(50%)";
+    document.body.style.overflow = "hidden";
+  }
+
+  if(isShownNearKeyFrameWindow){
+    if(e.key === 'a' && !isOffcanvasShown){
+      e.preventDefault();
+      currentPositionKeyframe = Math.max(currentPositionKeyframe - 64, 0);
+      if(keyFrameWindowData && maxLenBatch){
+        createKeyFrameImg(currentPositionKeyframe);
+        console.log("move keyframe window left side");
+      }
+    }
+    if(e.key === 'd' && !isOffcanvasShown){
+      e.preventDefault();
+      currentPositionKeyframe = Math.min(currentPositionKeyframe + 64, maxLenBatch);
+      if(keyFrameWindowData && maxLenBatch){
+        createKeyFrameImg(currentPositionKeyframe);
+        console.log("move keyframe window right side");
+      }
+    }
+    if(e.key === 'Escape'){
+      isShownNearKeyFrameWindow = 0;
+      e.preventDefault();
+      document.querySelector(".nearest-keyframes").style.display = "none";
+      document.querySelector(".nearest-keyframes").style.transform = "";
+      document.querySelector(".contentGrid").style.filter = "";
+      document.body.style.overflow = "";
+    }
+  }
+});
+
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click", function (_) {
+    mode = btn.innerHTML == "Practice Mode" ? "practice" : "competition";
+    console.log(mode);
+    get_session_ID(mode).then(sID => {
+      sessionID = sID;
+      get_evaluationID(sID, mode).then(eID => evaluationID = eID);
+    });
+    modeModal.toggle();
+  })
 });

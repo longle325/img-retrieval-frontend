@@ -66,6 +66,57 @@
     </div>
   </div>
   <!-------------------------------------End of Modal-------------------------------------->
+
+  <div class="modal" id="mode-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Welcome to StrawSearch!</h5>
+        </div>
+        <div class="modal-body text-bg-light">
+          <div class="input-group">
+            <span class="input-group-text" id="basic-addon3">Name:</span>
+            <input type="text" placeholder="Your name" id="login-name" class="form-control" aria-label="Session ID"
+              aria-describedby="basic-addon2">
+          </div>
+          <p id="name-warning" class="text-danger" hidden>Must enter your name</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary mode-btn">Practice Mode</button>
+          <button type="button" class="btn btn-primary mode-btn">Competition Mode</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="submit-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Submission</h5>
+        </div>
+        <div class="modal-body text-bg-light">
+          <div class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text" id="basic-addon3">Answer:</span>
+              <input type="text" class="form-control" id="qa-answer" placeholder="Optional"
+                aria-describedby="basic-addon3 basic-addon4">
+              <span class="input-group-text" id="basic-addon3">Video ID:</span>
+              <input type="text" class="form-control" id="video-id" aria-describedby="basic-addon3 basic-addon4"
+                disabled>
+              <span class="input-group-text" id="basic-addon3">Frame Index:</span>
+              <input type="text" class="form-control" id="frame-idx" aria-label="Start" disabled>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="submit-btn" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <main>
     <div class="headers">
 
@@ -73,7 +124,7 @@
         <button class="buttonToggle">
           <div class="circle"></div>
         </button>
-        <p>Video Group Search</p>
+        <p>Similarity Search</p>
       </div>
       <div class="title">
         <div class="where">
@@ -85,7 +136,11 @@
         <div>
           <button id="random-pic"><i class="fa fa-refresh"></i></button>
         </div>
-        <h1>Stubborn Strawberries</h1>
+        <h1>
+          <img
+            src="http://localhost:3031/mlcv2/WorkingSpace/Personal/longlb/AIC_2024/Image_Retrieval/frontend/image/straw.png"
+            class='straw' alt="" style="width: 100%; height:100%;">
+        </h1>
         <!-- Accordion -->
         <div class="accordion" id="accordionExample">
         </div>
@@ -387,7 +442,7 @@
                 " autofocus></textarea>
               </div>
             </div>
-            
+
             <div class="scene1" id="image-search" style="display: none;">
               <div class="">
                 <div id="description_objects1">
@@ -446,11 +501,12 @@
                   </div>
                 </div>
               </div>
-            </div>  
+            </div>
           </div>
         </div>
         <div class="contentGrid" id="content"></div>
         <div class="nearest-keyframes">
+          
           <i class='bx bx-x' id="close-near-kf"></i>
         </div>
       </div>
@@ -465,6 +521,7 @@
   </div>
 
   <!-- JQuery -->
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <!-- BootStrap -->
@@ -480,13 +537,43 @@
   <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
 
   <!-- JS Files -->
+  <script src="js/bridge.js" type="module"></script>
+  <script src="js/fetching.js" type="module"></script>
   <script src="js/notification.js" type="module"></script>
-  <script src="js/request.js" type="module"></script>
+  <!-- <script src="js/request.js" type="module"></script> -->
   <script src="js/carousel.js" type="module"></script>
   <script src="js/event_listener.js" type="module"></script>
   <script src="js/document.js" type="module"></script>
   <script src="js/client.js" type="module"></script>
   <script src="js/inputSuggestion.js"></script>
+  <script type="module">
+    import { post } from "./js/request.js";
+    const urlParams = new URLSearchParams(window.location.search);
+    const src = urlParams.get('src');
+    console.log(src);
+    // Step 2: Use the imageUrl as needed (e.g., display it in an <img> tag)
+    let api = ""
+    if (src) {
+      let data = {
+        query: [
+          {
+            textual: "",
+            objects: "",
+            colors: "",
+            ocr: "",
+            imgPath: src,
+            asr: "",
+            metadata: "",
+            collection: 'clip',
+          }
+        ]
+      };
+      console.log(data);
+      let jsonData = JSON.stringify(data);
+      post(jsonData, api);
+    }
+
+  </script>
 
 </body>
 

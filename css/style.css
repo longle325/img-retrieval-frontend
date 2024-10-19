@@ -38,6 +38,13 @@
   cursor: pointer;
 }
 
+.anton-regular {
+  font-family: "Anton", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+
 .advanced {
   display: none;
 }
@@ -56,6 +63,11 @@
   border-radius: 5px;
   border: 3px solid #a41318;
   padding: 5px;
+}
+
+img.straw{
+  width: 100px !important; 
+  height: auto !important;
 }
 
 element.style {
@@ -78,7 +90,7 @@ element.style {
   height: calc(100% + 0px);
   padding-right: 9px;
   padding-bottom: 12px;
-  border-left: 4px solid #7CB9E8;
+  border-left: 4px solid #82EA9E;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -252,7 +264,7 @@ element.style {
   width: 250px;
   margin-top: 4px;
   height: 1px;
-  border-bottom: 6px solid #7CB9E8;
+  border-bottom: 6px solid #82EA9E;
 }
 
 .description_objects0 p {
@@ -281,11 +293,12 @@ element.style {
   display: flex;
   width: 100%;
   z-index: 1;
+  border-bottom: 1px solid black;
 }
 
 .title {
   flex-direction: row;
-  background: #7CB9E8;
+  background: #82EA9E;
   width: 100%;
   position: relative;
   align-items: center;
@@ -304,6 +317,10 @@ element.style {
   font-size: 16px;
   transition: 0.2s all ease;
   word-spacing: 2px;
+  width: 5%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 
 #random-pic{
@@ -331,7 +348,7 @@ element.style {
   padding-left: 5px;
   padding-right: 5px;
   margin: 1px;
-  border-radius: 10px;
+  border-radius: 5px;
   border: 2px solid black;
   text-align: center;
   align-items: center;
@@ -404,13 +421,14 @@ element.style {
 }
 
 .result-mode {
-  background-color: #7CB9E8;
+  background-color: #82EA9E;
   height: 30px;
   width: 317px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: row;
+  border-bottom: 1px solid black;
 }
 
 .result-mode .buttonToggle {
@@ -424,8 +442,8 @@ element.style {
 
 .buttonToggle .circle {
   margin-top: -1px;
-  transform: translateX(13px);
-  background: #7CB9E8;
+  transform: translateX(-6px);
+  background: #82EA9E;
   height: 18px;
   width: 18px;
   border-radius: 50%;
@@ -585,6 +603,7 @@ div#searchTab {
   color: black;
   font-weight: bold;
   font-size: 14px;
+  border-radius: 10px;
 }
 
 html, body {
@@ -622,3 +641,4 @@ html, body {
   outline: none;
   border: 2px solid #007bff;
 }
+

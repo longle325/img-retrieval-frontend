@@ -1,7 +1,6 @@
 import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
 import { createToast } from "./notification.js";
 import { isModalShown } from "./carousel.js"
-// import { update_query_box} from "./event_listener.js";   
 // ***----------------------------------------------Public variables------------------------------------***
 
 export let queueImg = [];
@@ -9,9 +8,10 @@ export let rejectImg = [];
 export let submitImg = "";
 export let whole_query = "";
 // Web socket variables
-const socket = io("http://localhost:5053");
+export const socket = io("http://localhost:5053");
 
 // ***----------------------------------------------Functions------------------------------------***
+
 export function notifyStatus() {
     createToast("primary", `There are currently ${queueImg.length} images on queue, ${rejectImg.length} images are being rejected.`);
     if (submitImg)
@@ -24,6 +24,7 @@ export function emitQueueImg(img) {
 
 export function update_query(query) {
     socket.emit("update-query", query);
+    console.log(query);
 }
 
 function imgQueue() {
@@ -115,7 +116,7 @@ socket.on("connect", () => {
 });
 
 socket.on("get-query", (query) => {
-    whole_query = query; 
+    whole_query = query;
     // update_query_box(whole_query)
 });
 
@@ -125,7 +126,6 @@ socket.on("connect_error", (err) => {
 });
 
 socket.on("display-noti", (id, message) => {
-    console.log("Recieved");
     createToast(id, message);
 });
 
