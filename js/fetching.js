@@ -74,7 +74,7 @@ export async function submit_KIS_or_QNA(name, socket, QA_answer, video_name, fra
 
   const queryParams = new URLSearchParams(sessionID_json).toString();
 
-  fetch(`${submitPath}/api/v2/submit/${evaluationID}?${queryParams}`, {
+  return fetch(`${submitPath}/api/v2/submit/${evaluationID}?${queryParams}`, {
     method: "POST",
     headers: {
       accept: "application/json",
@@ -107,10 +107,12 @@ export async function submit_KIS_or_QNA(name, socket, QA_answer, video_name, fra
         log_data = (data.description).split(':')[1];
         emitToast(socket, "danger", `Submission rejected: ${log_data}`);
       }
+      return true;
     })
     .catch(err => {
       console.log(err);
       createToast("danger", `ERROR: ${err.message}`);
+      return false;
     });
 }
 
