@@ -1,7 +1,6 @@
 import { contentGrid, currentMode } from "./document.js";
-import { queueImg, rejectImg } from "./client.js";
+import { queueImg, rejectImg, submitImg } from "./client.js";
 import { isOffcanvasShown } from "./carousel.js";
-import { createToast } from "./notification.js";
 
 let api = "http://localhost:8053/";
 let log_data = '';
@@ -86,7 +85,7 @@ export function get_video_path_m3u8(video_name) {
     video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch2_audio/";
   }
   return video_path + video_name + "/" + video_name + ".m3u8";
-  
+
 }
 
 const lazyLoad = (target) => {
@@ -119,17 +118,35 @@ export const openWin = (vid_name, frame_idx) => {
   if (win) win.resizeTo(500, 400);
 }
 
-function createImgElement(directory, frame_idx) {
+function createImgElement(directory, frame_idx, opt) {
   const imgElement = document.createElement("img");
-  imgElement.setAttribute("data-lazy", directory);
-  imgElement.setAttribute("class", "keyframeImg");
+  if(opt === 0) {
+    imgElement.setAttribute("class", "keyframeImg");
+    imgElement.setAttribute("data-lazy", directory);
+
+  }
+  else {
+    // console.log("yes near kf");
+    directory = "http://localhost:1999" + directory;
+    imgElement.setAttribute("class", "lil-kf");
+    imgElement.setAttribute("src", directory);
+
+  }
   imgElement.setAttribute('frame_idx', frame_idx);
 
-  if (hashTable.has(directory) && !rejectedHashTable.has(directory)) {
-    imgElement.style.border = "4px solid yellow";
+  console.log(submitImg);
+
+  if (submitImg.includes(directory)) {
+    console.log('1');
+    imgElement.style.border = "4px solid lime";
   }
-  else if (rejectedHashTable.has(directory)) {
+  else if (rejectImg.includes(directory)) {
+    console.log('2');
     imgElement.style.border = "4px solid red";
+  }
+  else if(queueImg.includes(directory)){
+    console.log('3');
+    imgElement.style.border = "4px solid yellow";
   }
 
   imgElement.addEventListener("mouseenter", function (event) {
@@ -148,9 +165,6 @@ function createImgElement(directory, frame_idx) {
 export function VideoGroupSearch(Pages) {
 
   console.log("Pages from video group search", Pages);
-
-  rejectedHashTable.clear();
-  for (const dir of rejectImg) rejectedHashTable.add(dir); // Load các ảnh bị rejects để apply border màu đỏ
 
   const imageContainer = document.getElementById("content");
   imageContainer.innerHTML = "";
@@ -188,7 +202,7 @@ export function VideoGroupSearch(Pages) {
       });
 
       // Tạo ảnh lấy từ directory
-      const imgElement = createImgElement(dir, frame_idx);
+      const imgElement = createImgElement(dir, frame_idx, 0);
 
       // Video name và keyframe của mỗi ảnh for identification
       const name = document.createElement("p");
@@ -224,8 +238,6 @@ export function VideoGroupSearch(Pages) {
 
 export function SimilaritySearch(currentResult) {
   console.log("current Result from similarity search", currentResult);
-  rejectedHashTable.clear();
-  for (const dir of rejectImg) rejectedHashTable.add(dir); // Load các ảnh bị reject để apply border màu đỏ
 
   let contentGrid = document.querySelector("#content");
   contentGrid.innerHTML = "";
@@ -262,7 +274,7 @@ export function SimilaritySearch(currentResult) {
     });
 
     // Tạo element ảnh từ directory
-    const imgElement = createImgElement(directory, frame_idx);
+    const imgElement = createImgElement(directory, frame_idx, 0);
 
     // Video name và keyframe của mỗi ảnh for identification
     const name = document.createElement("p");
@@ -352,7 +364,6 @@ function createResult(response) {
   Pages = PageX;
   currentResult = currentResultX;
 
-
   if (response.path2) {
     // For temporal only 
     const { PageX, currentResultX } = storePage(response.path2, response.frame_idx2);
@@ -360,21 +371,9 @@ function createResult(response) {
     currentResult2 = currentResultX;
   }
 
-  for (const dir of rejectImg) { // Rejected imgs
-    if (document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
-  }
-
   window.scrollTo({ top: 0, behavior: 'instant' });
 
   searchMode(StateOfTemporal);
-
-  for (const dir of rejectImg) { // Rejected imgs
-    if (document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
-  }
-
-  for (const directory of queueImg) {
-    hashTable.add(directory);
-  }
 }
 
 
@@ -502,7 +501,7 @@ function createKeyFrameImg(currentKFIndex) {
   let divElement = document.createElement("div");
   divElement.setAttribute("class", "lil-kf");
 
-  keyframeGrid.scrollTo({top: 0, behavior: 'instant'});
+  keyframeGrid.scrollTo({ top: 0, behavior: 'instant' });
 
 
   for (let i = Math.max(0, currentKFIndex - 32); i < Math.min(maxLenBatch, currentKFIndex + 32); i++) { // 30 previous keyframes and 30 next keyframes
@@ -524,20 +523,11 @@ function createKeyFrameImg(currentKFIndex) {
     });
 
     // Tạo element ảnh từ directory
-    const imgElement = createImgElement(path, frame_idx);
+    const imgElement = createImgElement(path, frame_idx, 1);
     imgElement.src = path;
 
     if (i === originalKFIndex) {
       imgElement.style.border = '8px solid blue';
-    }
-
-    if (hashTable.has(imgElement.src) && !rejectedHashTable.has(imgElement.src)) {
-      imgElement.style.border = "4px solid yellow";
-    }
-
-    if (rejectedHashTable.has(imgElement.src)) {
-      console.log(imgElement.src);
-      imgElement.style.border = "4px solid red";
     }
 
     // Video name và keyframe của mỗi ảnh for identification
@@ -550,13 +540,6 @@ function createKeyFrameImg(currentKFIndex) {
   }
   keyframeGrid.appendChild(divElement);
 
-  for (const directory of queueImg) {
-    if (document.querySelector(`[src = "${directory}"]`)) document.querySelector(`[src = "${directory}"]`).style.border = "4px solid yellow";
-  }
-
-  for (const dir of rejectImg) { // Rejected imgs
-    if (document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
-  }
 }
 
 // Nearest keyframes search
@@ -577,6 +560,7 @@ export function nearestKeyFrameSearch() {
   FrameSrc = FrameSrc.replace("http://localhost:3031", "");
 
   maxLenBatch = 0;
+  console.log(pathForFetch);
 
   // Fetch the JSON data path
   fetch(pathForFetch)
@@ -647,6 +631,3 @@ document.addEventListener("keydown", function (e) {
     }
   }
 });
-
-// ======================> Evaluation_ID = "4df14a14-4641-49a4-80be-8d61d5de58b6"
-

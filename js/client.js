@@ -5,7 +5,7 @@ import { isModalShown } from "./carousel.js"
 
 export let queueImg = [];
 export let rejectImg = [];
-export let submitImg = "";
+export let submitImg = [];
 export let whole_query = "";
 // Web socket variables
 export const socket = io("http://localhost:5053");
@@ -14,8 +14,6 @@ export const socket = io("http://localhost:5053");
 
 export function notifyStatus() {
     createToast("primary", `There are currently ${queueImg.length} images on queue, ${rejectImg.length} images are being rejected.`);
-    if (submitImg)
-        createToast("primary", `Submitted image: ${submitImg.split("/").slice(-2)[0]}_${submitImg.split("/").slice(-1)[0].split(".")[0]}`);
 }
 
 export function emitQueueImg(img) {
@@ -27,23 +25,18 @@ export function update_query(query) {
     console.log(query);
 }
 
-function imgQueue() {
-    const accordion = document.getElementsByClassName("accordion")[0];
-    let accor_body = accordion.querySelector(".accordion-body");
-};
-
 function updateBorder(type, imgSrc) {
     switch (type) {
         case "submit":
             // console.log(submittedImg);
             let submittedImg = document.querySelector(".contentGrid").querySelector(`img[src="${imgSrc}"]`);
             if (submittedImg) {
-                submittedImg.style.border = "4px solid lightgreen";
+                submittedImg.style.border = "4px solid lime";
                 submittedImg.style["border-radius"] = "4px";
             }
-            submitImg = document.querySelector(".nearest-keyframes").querySelector(`img[src="${imgSrc}"]`);
+            submittedImg = document.querySelector(".nearest-keyframes").querySelector(`img[src="${imgSrc}"]`);
             if (submittedImg) {
-                submittedImg.style.border = "4px solid lightgreen";
+                submittedImg.style.border = "4px solid lime";
                 submittedImg.style["border-radius"] = "4px";
             }
             break;
@@ -102,11 +95,19 @@ function resetBorder() {
         }
     });
 
-    let currentImg = document.querySelector(".contentGrid").querySelector(`img[src="${submitImg}"]`);
-    if (currentImg) {
-        currentImg.style.border = "2px solid black";
-        currentImg.style["border-radius"] = "4px";
-    }
+    submitImg.forEach((src) => {
+        let currentImg = document.querySelector(".contentGrid").querySelector(`img[src="${src}"]`);
+        if (currentImg) {
+            currentImg.style.border = "2px solid black";
+            currentImg.style["border-radius"] = "4px";
+        }
+        currentImg = document.querySelector(".nearest-keyframes").querySelector(`img[src="${src}"]`);
+        if (currentImg) {
+            currentImg.style.border = "2px solid black";
+            currentImg.style["border-radius"] = "4px";
+        }
+    });
+
 }
 
 // ***------------------------------------Socket Events-----------------------------------------------***
@@ -129,19 +130,23 @@ socket.on("display-noti", (id, message) => {
     createToast(id, message);
 });
 
-socket.on("get-queue", (queue, queue2) => {
+socket.on("get-queue", (queue, queue2, queue3) => {
     queueImg = queue;
     rejectImg = queue2;
+    submitImg = queue3;
     notifyStatus();
-    imgQueue();
 });
 
 socket.on("queue-update", (type, imgSrc) => {
     switch (type) {
         case "submit":
-            queueImg.splice(queueImg.indexOf(imgSrc), 1);
-            submitImg = imgSrc;
+            if (queueImg.indexOf(imgSrc) != -1)
+                queueImg.splice(queueImg.indexOf(imgSrc), 1);
+            submitImg.push(imgSrc);
             updateBorder(type, imgSrc);
+            if (isModalShown && imgSrc === document.querySelector(".modal-body img").getAttribute("src")) {
+                document.querySelector(".modal-body img").style['border'] = '4px solid lime';
+            }
             break;
         case "queue":
             queueImg.push(imgSrc);
@@ -165,14 +170,16 @@ socket.on("queue-update", (type, imgSrc) => {
             for (const dir of rejectImg) {
                 document.querySelector(".modal-body img").style['border'] = '4px solid black';
             }
+            for (const dir of submitImg) {
+                document.querySelector(".modal-body img").style['border'] = '4px solid black';
+            }
             console.log("Empty");
             resetBorder();
             queueImg = [];
             rejectImg = [];
-            submitImg = "";
+            submitImg = [];
             break;
     }
-    imgQueue();
     console.log('update');
 });
 socket.on("updated-query-box", (query) => {

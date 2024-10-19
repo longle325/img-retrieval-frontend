@@ -92,7 +92,9 @@ function reset(){
 }
 
 document.getElementById("request").addEventListener("keydown", function (e) {
-  if (e.key === "Enter" && !e.shiftKey) {
+  let meta = document.querySelector('#meta').value;
+
+  if (e.key === "Enter" && !e.shiftKey && !meta) {
     e.preventDefault();
     isASR = false;
     let searchTab = document.querySelector("#searchTab");
@@ -352,6 +354,7 @@ document.addEventListener("keydown", function (event) {
 document.getElementById("searchMeta").addEventListener("keydown",function(e){
   let meta = document.querySelector('#meta').value;
   if (e.key == "Enter" && meta && !e.ctrlKey){
+
     let res = {
       query: [
         {
@@ -367,7 +370,7 @@ document.getElementById("searchMeta").addEventListener("keydown",function(e){
   ]}
   res = JSON.stringify(res);
   console.log(res);
-  post(res,api)
+  post(res,api);
 }
 })
 

@@ -5,6 +5,9 @@ import { submit_KIS_or_QNA, get_session_ID, get_evaluationID } from "./fetching.
 
 const modeModal = new bootstrap.Modal(document.getElementById("mode-modal"));
 modeModal.toggle();
+
+const checkModal = new bootstrap.Modal(document.getElementById("check-modal"));
+
 const submitModel = new bootstrap.Modal(document.getElementById("submit-modal"));
 
 let queue_view = document.querySelector('#queue-view');
@@ -15,18 +18,20 @@ let sessionID = "";
 let evaluationID = "";
 let loginName = "Admin";
 
+let submitImg = [];
+
 export function get_video_path_m3u8(video_name) {
   let video_path = ""
-  if (video_name < "L13_V001"){
+  if (video_name < "L13_V001") {
     video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch1_audio/";
   }
-  else if (video_name >="L15_V001"){
+  else if (video_name >= "L15_V001") {
     video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch3/";
   }
-  else{
+  else {
     video_path = "http://localhost:3031/mlcv2/Datasets/HCMAI24/streaming/batch2_audio/";
   }
-  return video_path + video_name + "/" + video_name +".m3u8";
+  return video_path + video_name + "/" + video_name + ".m3u8";
 }
 
 export const openWin = (vid_name, frame_idx) => {
@@ -91,21 +96,25 @@ socket.on("display-noti", (id, message) => {
   createToast(id, message);
 });
 
-socket.on('queue-update', queue => {
+socket.on('queue-update', (queue, queue2) => {
   displayQueue(queue);
+  submitImg = queue2;
 })
 
 document.addEventListener("keydown", function (e) {
   // var module_displaying;
-  if (e.key == "d") {
+  if (e.key == "d" && isOffcanvasShown) {
     myCarousel.next();
   }
-  if (e.key == "a") {
+  if (e.key == "a" && isOffcanvasShown) {
     myCarousel.prev();
   }
   if (e.key == "c" || e.key == "g") {
-    myOffcanvas.hide();
-    myModal.hide();
+    if (isOffcanvasShown) {
+      myOffcanvas.hide();
+      myModal.hide();
+      isOffcanvasShown = false;
+    }
   }
   if (e.key == "z") {
     myModal.toggle();
@@ -117,27 +126,10 @@ document.addEventListener("keydown", function (e) {
   }
 
   if (e.ctrlKey) {
-    // if (e.key == 'b' && targetImg){
-
-    //   // currentResult.length = 0;
-    //   console.log(targetImg);
-    //   const src = targetImg.getAttribute("src") || targetImg.getAttribute("data-lazy");
-    //   let win = window.open(
-    //     `http://localhost:3031/?src=${encodeURIComponent(src)}`, // Use backticks for template literals
-    //     null,
-    //     "popup"
-    //   )
-    //   window.scrollTo({  top: 0, behavior: 'instant'  });
-
-
-    //   const getPath = encodeURIComponent(get_video_path_m3u8(vid_name));
-    //   const getFrame = encodeURIComponent(frame_idx);
-    //   Open the new window with the specified URL and dimensions
-
-
-    //   );
-    // }
-
+    if (e.key == "h") {
+      e.preventDefault();
+      checkModal.toggle();
+    }
 
     if (e.key == 'e') {
       e.preventDefault();
@@ -152,34 +144,46 @@ document.addEventListener("keydown", function (e) {
         if (chosenImg) {
           let videoID = chosenImg.src.split("/").slice(-2)[0];
           let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
-          if (mode == "practice") {
-            submit_KIS_or_QNA(loginName, socket, "", videoID, frameIdx, "KIS", sessionID, evaluationID, mode);
-          } else {
-            document.getElementById("video-id").value = videoID;
-            document.getElementById("frame-idx").value = frameIdx;
-            submitModel.toggle();
-            document.getElementById("qa-answer").focus();
-          }
-
+          document.getElementById("video-id").value = videoID;
+          document.getElementById("frame-idx").value = frameIdx;
+          submitModel.toggle();
+          document.getElementById("qa-answer").focus();
         }
+
       }
     }
+  }
 
-
-    if (e.key == "\\") {
-      e.preventDefault();
-      socket.emit('empty-queue');
+  if (e.key == "c") {
+    let chosenImg = "";
+    if (isOffcanvasShown) {
+      chosenImg = document.querySelector(".modal-body img");
+    } else {
+      chosenImg = targetImg;
     }
-    if(e.key == 'v'){
+
+    if (chosenImg) {
       e.preventDefault();
-      let imgSrc = document.getElementById("modal-img").src;
-      const videoName = imgSrc.split("/").slice(-2)[0];
-      const frameidx = imgSrc.split("/").slice(-1)[0].split(".")[0];
-      openWin(videoName, frameidx);
+      let videoID = chosenImg.src.split("/").slice(-2)[0];
+      let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
+      navigator.clipboard.writeText(videoID + ", " + frameIdx);
+      createToast("success", "Copied video name!");
     }
   }
-}
-);
+
+
+  if (e.key == "\\") {
+    e.preventDefault();
+    socket.emit('empty-queue');
+  }
+  if (e.key == 'v') {
+    e.preventDefault();
+    let imgSrc = document.getElementById("modal-img").src;
+    const videoName = imgSrc.split("/").slice(-2)[0];
+    const frameidx = imgSrc.split("/").slice(-1)[0].split(".")[0];
+    openWin(videoName, frameidx);
+  }
+});
 
 // Chuột phải
 document.addEventListener("contextmenu", function (e) {
@@ -215,7 +219,7 @@ export let keyFrameWindowData = null;
 export let maxLenBatch = 0;
 export let originalKFIndex = 0;
 
-function createImgElement(directory, frame_idx){
+function createImgElement(directory, frame_idx) {
   const imgElement = document.createElement("img");
   imgElement.setAttribute("data-lazy", directory);
   imgElement.setAttribute("class", "keyframeImg");
@@ -232,17 +236,23 @@ function createImgElement(directory, frame_idx){
     event.preventDefault();
     targetImg = "";
   });
+  // for (const directory of queueImg) {
+  //   if (document.querySelector(`[src = "${directory}"]`)) document.querySelector(`[src = "${directory}"]`).style.border = "4px solid yellow";
+  // }
 
+  // for (const dir of rejectImg) { // Rejected imgs
+  //   if (document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
+  // }
   return imgElement;
 }
 
-function createKeyFrameImg(currentKFIndex){
+function createKeyFrameImg(currentKFIndex) {
   let keyframeGrid = document.querySelector(".nearest-keyframes");
   keyframeGrid.innerHTML = "<i class='bx bx-x' id='close-near-kf'></i>"; // reset - innercontent need to have cls button
 
   const closeButton = document.querySelector("#close-near-kf");
   if (closeButton) {
-    closeButton.addEventListener("click", function() {
+    closeButton.addEventListener("click", function () {
       console.log("close");
       document.querySelector(".nearest-keyframes").style.display = "none";
       document.querySelector(".nearest-keyframes").style.transform = "";
@@ -255,10 +265,10 @@ function createKeyFrameImg(currentKFIndex){
   let divElement = document.createElement("div");
   divElement.setAttribute("class", "lil-kf");
 
-  keyframeGrid.scrollTo({top: 0, behavior: 'instant'});
+  keyframeGrid.scrollTo({ top: 0, behavior: 'instant' });
 
 
-  for(let i = Math.max(0, currentKFIndex - 32); i < Math.min(maxLenBatch, currentKFIndex + 32); i++){ // 30 previous keyframes and 30 next keyframes
+  for (let i = Math.max(0, currentKFIndex - 32); i < Math.min(maxLenBatch, currentKFIndex + 32); i++) { // 30 previous keyframes and 30 next keyframes
 
     let path = keyFrameWindowData[i];
     const segments = path.split("/");
@@ -280,7 +290,7 @@ function createKeyFrameImg(currentKFIndex){
     const imgElement = createImgElement(path, frame_idx);
     imgElement.src = path;
 
-    if(i === originalKFIndex){
+    if (i === originalKFIndex) {
       imgElement.style.border = '8px solid blue';
       console.log("find the blue kf");
     }
@@ -295,14 +305,14 @@ function createKeyFrameImg(currentKFIndex){
   }
   keyframeGrid.appendChild(divElement);
 
-  for (const directory of queueImg) {
-    if(document.querySelector(`[src = "${directory}"]`)) document.querySelector(`[src = "${directory}"]`).style.border = "4px solid yellow";
-  }
+  // for (const directory of queueImg) {
+  //   if (document.querySelector(`[src = "${directory}"]`)) document.querySelector(`[src = "${directory}"]`).style.border = "4px solid yellow";
+  // }
 
-  for (const dir of rejectImg) { // Rejected imgs
-    if(document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
-  }
-} 
+  // for (const dir of rejectImg) { // Rejected imgs
+  //   if (document.querySelector(`[src = "${dir}"]`)) document.querySelector(`[src = "${dir}"]`).style.border = "4px solid red";
+  // }
+}
 
 // Nearest keyframes search
 export function nearestKeyFrameSearch() {
@@ -314,7 +324,7 @@ export function nearestKeyFrameSearch() {
   let videoName = splittedKeyFramePath[splittedKeyFramePath.length - 1];
   splittedKeyFramePath.pop();
   splittedKeyFramePath.pop();
-  let pathForFetch = splittedKeyFramePath.join('/') + '/json/' + videoName +'.json';
+  let pathForFetch = splittedKeyFramePath.join('/') + '/json/' + videoName + '.json';
 
   FrameSrc = FrameSrc.replace("http://localhost:3031", "");
 
@@ -336,7 +346,7 @@ export function nearestKeyFrameSearch() {
 
       Object.entries(keyFrameWindowData).forEach(([key, value]) => {
         maxLenBatch = Math.max(maxLenBatch, key);
-        if(FrameSrc === value){
+        if (FrameSrc === value) {
           currentPositionKeyframe = Number(key);
         }
       });
@@ -352,8 +362,52 @@ export function nearestKeyFrameSearch() {
 
 }
 
-document.addEventListener("keydown", function(e){
-  if(e.ctrlKey && e.key === 's'){
+document.getElementById("check-modal").addEventListener("shown.bs.modal", (_) => {
+  console.log(submitImg);
+  let modalBody = document.getElementById("check-modal").querySelector(".list-group");
+  modalBody.innerHTML = "";
+  submitImg.forEach(imgSrc => {
+    let videoID = imgSrc.split("/").slice(-2)[0];
+    let frameIdx = imgSrc.split("/").slice(-1)[0].split(".")[0];
+    let videoName = videoID + ", " + frameIdx;
+
+    let imgBtn = document.createElement("button");
+    imgBtn.setAttribute("type", "button");
+    imgBtn.setAttribute("class", "list-group-item list-group-item-action");
+    imgBtn.innerHTML = videoName;
+
+    imgBtn.addEventListener("click", (_) => {
+      navigator.clipboard.writeText(videoName);
+      createToast("success", `Coppied: ${videoName}`);
+    });
+    modalBody.appendChild(imgBtn);
+  });
+});
+
+document.getElementById("check-modal").addEventListener("shown.bs.modal", (_) => {
+  console.log(submitImg);
+  let modalBody = document.getElementById("check-modal").querySelector(".list-group");
+  modalBody.innerHTML = "";
+  submitImg.forEach(imgSrc => {
+    let videoID = imgSrc.split("/").slice(-2)[0];
+    let frameIdx = imgSrc.split("/").slice(-1)[0].split(".")[0];
+    let videoName = videoID + ", " + frameIdx;
+
+    let imgBtn = document.createElement("button");
+    imgBtn.setAttribute("type", "button");
+    imgBtn.setAttribute("class", "list-group-item list-group-item-action");
+    imgBtn.innerHTML = videoName;
+
+    imgBtn.addEventListener("click", (_) => {
+      navigator.clipboard.writeText(videoName);
+      createToast("success", `Coppied: ${videoName}`);
+    });
+    modalBody.appendChild(imgBtn);
+  });
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey && e.key === 's') {
     e.preventDefault();
 
     isShownNearKeyFrameWindow = 1;
@@ -366,24 +420,24 @@ document.addEventListener("keydown", function(e){
     document.body.style.overflow = "hidden";
   }
 
-  if(isShownNearKeyFrameWindow){
-    if(e.key === 'a' && !isOffcanvasShown){
+  if (isShownNearKeyFrameWindow) {
+    if (e.key === 'a' && !isOffcanvasShown) {
       e.preventDefault();
       currentPositionKeyframe = Math.max(currentPositionKeyframe - 64, 0);
-      if(keyFrameWindowData && maxLenBatch){
+      if (keyFrameWindowData && maxLenBatch) {
         createKeyFrameImg(currentPositionKeyframe);
         console.log("move keyframe window left side");
       }
     }
-    if(e.key === 'd' && !isOffcanvasShown){
+    if (e.key === 'd' && !isOffcanvasShown) {
       e.preventDefault();
       currentPositionKeyframe = Math.min(currentPositionKeyframe + 64, maxLenBatch);
-      if(keyFrameWindowData && maxLenBatch){
+      if (keyFrameWindowData && maxLenBatch) {
         createKeyFrameImg(currentPositionKeyframe);
         console.log("move keyframe window right side");
       }
     }
-    if(e.key === 'Escape'){
+    if (e.key === 'Escape' || (e.key === 'c' && e.ctrlKey && !isOffcanvasShown)) {
       isShownNearKeyFrameWindow = 0;
       e.preventDefault();
       document.querySelector(".nearest-keyframes").style.display = "none";
@@ -404,4 +458,19 @@ document.querySelectorAll(".mode-btn").forEach(btn => {
     });
     modeModal.toggle();
   })
+});
+
+document.getElementById("submit-btn").addEventListener("click", () => {
+  let qa_answer = document.getElementById("qa-answer").value.trim();
+  let video_name = document.getElementById("video-id").value;
+  let frame_idx = document.getElementById("frame-idx").value;
+  let qs_type = "KIS";
+  if (qa_answer) qs_type = "QA";
+  console.log(qa_answer, video_name, frame_idx, qs_type);
+  submit_KIS_or_QNA(loginName, socket, qa_answer, video_name, frame_idx, qs_type, sessionID, evaluationID, mode);
+  submitModel.toggle();
+});
+
+document.getElementById("qa-answer").addEventListener("keydown", (e) => {
+  if (e.key == "Enter") document.getElementById("submit-btn").click();
 });

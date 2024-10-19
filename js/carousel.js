@@ -1,4 +1,5 @@
 import { createToast } from "./notification.js";
+import { queueImg, rejectImg, submitImg } from "./client.js";
 
 // ***------------------------------------Public Variables-----------------------------------------------***
 export const myModal = new bootstrap.Modal(document.getElementById("gallery-modal"));
@@ -47,14 +48,36 @@ const lazyLoad = (target) => {
 };
 
 function updateModal(imgSrc) {
+  console.log(imgSrc);
+  console.log(submitImg[0]);
+  console.log(submitImg.includes(imgSrc));
   if (isModalShown) {
     myModal.hide();
     let modalImg = document.getElementById("modal-img");
     modalImg.setAttribute("src", imgSrc);
     myModal.show();
+    // if (submitImg.includes(imgSrc)) {
+    //   modalImg.style.border = "4px solid lime";
+    // }
+    // else if (rejectImg.includes(imgSrc)) {
+    //   modalImg.style.border = "4px solid red";
+    // }
+    // else if (queueImg.includes(imgSrc)) {
+    //   modalImg.style.border = "4px solid yellow";
+    // }
   } else {
     let modalImg = document.getElementById("modal-img");
     modalImg.setAttribute("src", imgSrc);
+    myModal.show();
+    // if (submitImg.includes(imgSrc)) {
+    //   modalImg.style.border = "4px solid lime";
+    // }
+    // else if (rejectImg.includes(imgSrc)) {
+    //   modalImg.style.border = "4px solid red";
+    // }
+    // else if (queueImg.includes(imgSrc)) {
+    //   modalImg.style.border = "4px solid yellow";
+    // }
   }
 }
 
@@ -124,52 +147,60 @@ function updateOffcanvasTitle() {
 
 export function activeKeyFrameView(imgPath) {
   // Gán ảnh của Modal là ảnh được target
-  document.getElementById("modal-img").setAttribute("src", imgPath);
+  let modalImg = document.getElementById("modal-img")
+  modalImg.setAttribute("src", imgPath);
 
   // Get the video directory path
-  let folderName = imgPath.split("/");
-  folderName.pop();
-  folderName = folderName.join("/");
-
-  console.log(folderName)
+  let videoID = imgPath.split("/").slice(-2)[0];
 
   let innerCarousel = document.getElementById("carousel-inner");
   innerCarousel.innerHTML = "";
 
-  // let path = "http://localhost:3031" + folderName + "/";
-  let path = folderName;
+  let folderName = imgPath.split("/");
+  folderName.pop();
+  folderName = folderName.join("/");
+
+  console.log(videoID);
+  let path = "http://localhost:3031/mlcv2/WorkingSpace/Personal/longlb/AIC_2024/data/keyframe_resized/json/" + videoID + ".json";
   fetch(path).then((res) => {
     if (res.ok) {
       res.json().then((response) => {
         let fileNames = [];
-        response.forEach((element) => {
-          fileNames.push(element.name);
-        });
-        fileNames.sort(function (a, b) { return a.split(".")[0] - b.split(".")[0] })
         let index = 0;
-        for (const imgName of fileNames) {
+        Object.entries(response).forEach((element, _) => {
+          let imgName = element[1].split("/").pop();
           let currentPath = folderName + "/" + imgName;
           innerCarousel.appendChild(createCarouselItem(folderName + "/" + imgName, imgPath));
           if (currentPath == imgPath) {
             index = fileNames.indexOf(imgName);
           }
-        }
+        });
 
         let rect = document.querySelector(".carousel-item.active").getBoundingClientRect();
         cardWidth = Math.round(rect.width * 10) / 10;
         console.log(cardWidth);
         scrollPosition = (index - 1) * cardWidth;
-        slideCarousel();
         initialPos = cardWidth * 4;
+        scrollPosition -= (initialPos - rect.left);
+        slideCarousel();
         updateOffcanvasTitle();
         myModal.show();
         myOffcanvas.show();
+        if (submitImg.includes(imgPath)) {
+          modalImg.style.border = "4px solid lime";
+        }
+        else if (rejectImg.includes(imgPath)) {
+          modalImg.style.border = "4px solid red";
+        }
+        else if (queueImg.includes(imgPath)) {
+          modalImg.style.border = "4px solid yellow";
+        }
       });
     } else {
       createToast("danger", "CANNOT GET KEYFRAME NAMES!");
     }
   })
-  .catch(e => createToast("danger", `ERROR: ${e.message}`));
+    .catch(e => createToast("danger", `ERROR: ${e.message}`));
 }
 
 // ***------------------------------------Carousel Events-----------------------------------------------***

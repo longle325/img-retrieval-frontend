@@ -1,18 +1,19 @@
 import { currentResult, targetImg, fetchImageSearch, pageMove, openWin, switching_Collection, collectionSwitchBtn, SwitchStateOfTemporal } from "./request.js";
 import { createToast } from "./notification.js";
-import { myModal, myOffcanvas, myCarousel, activeKeyFrameView, isOffcanvasShown} from "./carousel.js";
-import { queueImg, rejectImg, submitImg, emitQueueImg, whole_query, update_query} from "./client.js";
+import { myModal, myOffcanvas, myCarousel, activeKeyFrameView, isOffcanvasShown } from "./carousel.js";
+import { socket, queueImg, rejectImg, submitImg, emitQueueImg, whole_query, update_query } from "./client.js";
 import { submit_KIS_or_QNA, get_session_ID, get_evaluationID } from "./fetching.js";
-import { socket } from "./client.js";
 
 // ***----------------------------------------------Standard Events---------------------------------------------***
 const modeModal = new bootstrap.Modal(document.getElementById("mode-modal"));
 modeModal.toggle();
 
+const checkModal = new bootstrap.Modal(document.getElementById("check-modal"));
+
 const submitModel = new bootstrap.Modal(document.getElementById("submit-modal"));
 
 let mode = "practice";
-let sessionID = ''; 
+let sessionID = '';
 let evaluationID = '';
 
 export let loginName = '';
@@ -45,13 +46,13 @@ function switch_searchTab() {
   if (searchTab.style.display === "none") {
     transcriptTab.style.display = "none";
     imageDropage.style.display = "none";
-    transcriptTextarea.value = "";
+    // transcriptTextarea.value = "";
     searchTab.style.display = "block";
     searchTextarea.focus()
   }
   else {
     searchTab.style.display = "none";
-    searchTextarea.value = "";
+    // searchTextarea.value = "";
     transcriptTab.style.display = "block";
     imageDropage.style.display = "block";
     transcriptTextarea.focus();
@@ -115,6 +116,23 @@ document.addEventListener("keydown", (e) => {
       pageMove("right");
     }
 
+    if (e.key == "c") {
+      let chosenImg = "";
+      if (isOffcanvasShown) {
+        chosenImg = document.querySelector(".modal-body img");
+      } else {
+        chosenImg = targetImg;
+      }
+
+      if (chosenImg) {
+        e.preventDefault();
+        let videoID = chosenImg.src.split("/").slice(-2)[0];
+        let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
+        navigator.clipboard.writeText(videoID + ", " + frameIdx);
+        createToast("success", "Copied video name!");
+      }
+    }
+
     // Open video
     if (e.key === "v" && isOffcanvasShown) {
       console.log("ctrl + v and turn on video");
@@ -157,17 +175,21 @@ document.addEventListener("keydown", (e) => {
         }
 
         if (chosenImg) {
-          let videoID = chosenImg.src.split("/").slice(-2)[0];
-          let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
-          if (mode == "practice") {
-            submit_KIS_or_QNA(loginName, socket, "", videoID, frameIdx, "KIS", sessionID, evaluationID, mode);
-          } else {
+          if (rejectImg.includes(chosenImg.getAttribute("src")))
+            createToast("danger", "Oops, this image was rejected before!");
+          else if (queueImg.includes(chosenImg.getAttribute("src")))
+            createToast("danger", "Oops, this image has already been queued!");
+          else if (submitImg.includes(chosenImg.getAttribute("src")))
+            createToast("danger", "Oops, this image has already been submitted!");
+          else {
+            socket.emit("submit-image", chosenImg.src);
+            let videoID = chosenImg.src.split("/").slice(-2)[0];
+            let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
             document.getElementById("video-id").value = videoID;
             document.getElementById("frame-idx").value = frameIdx;
             submitModel.toggle();
             document.getElementById("qa-answer").focus();
           }
-
         }
       }
     }
@@ -187,6 +209,11 @@ document.addEventListener("keydown", (e) => {
       console.log('yes');
     }
 
+    if (e.key == "h") {
+      e.preventDefault();
+      checkModal.toggle();
+    }
+
     if (e.key == "x" && document.activeElement.tagName.toLowerCase() != "textarea") { // Queue img for admin check
       let chosenImg = "";
 
@@ -203,7 +230,7 @@ document.addEventListener("keydown", (e) => {
           createToast("danger", "Oops, this image was rejected before!");
         else if (queueImg.includes(chosenImg.getAttribute("src")))
           createToast("danger", "Oops, this image has already been queued!");
-        else if (chosenImg.getAttribute("src") == submitImg)
+        else if (submitImg.includes(chosenImg.getAttribute("src")))
           createToast("danger", "Oops, this image has already been submitted!");
         else {
           document.querySelector(".modal-body img").style['border'] = '4px solid yellow';
@@ -265,6 +292,12 @@ document
         modalImg.style['border'] = "4px solid red";
       }
     }
+
+    for (const dir of submitImg) {
+      if (dir === imgSrc) {
+        modalImg.style['border'] = "4px solid lime";
+      }
+    }
   });
 
 document.getElementById("gallery-modal").addEventListener("shown.bs.modal", (_) => {
@@ -287,6 +320,28 @@ document.getElementById("gallery-modal").addEventListener("shown.bs.modal", (_) 
       break;
     }
   }
+});
+
+document.getElementById("check-modal").addEventListener("shown.bs.modal", (_) => {
+  console.log(submitImg);
+  let modalBody = document.getElementById("check-modal").querySelector(".list-group");
+  modalBody.innerHTML = "";
+  submitImg.forEach(imgSrc => {
+    let videoID = imgSrc.split("/").slice(-2)[0];
+    let frameIdx = imgSrc.split("/").slice(-1)[0].split(".")[0];
+    let videoName = videoID + ", " + frameIdx;
+
+    let imgBtn = document.createElement("button");
+    imgBtn.setAttribute("type", "button");
+    imgBtn.setAttribute("class", "list-group-item list-group-item-action");
+    imgBtn.innerHTML = videoName;
+
+    imgBtn.addEventListener("click", (_) => {
+      navigator.clipboard.writeText(videoName);
+      createToast("success", `Coppied: ${videoName}`);
+    });
+    modalBody.appendChild(imgBtn);
+  });
 });
 
 
@@ -337,4 +392,3 @@ document.getElementById("submit-btn").addEventListener("click", () => {
 document.getElementById("qa-answer").addEventListener("keydown", (e) => {
   if (e.key == "Enter") document.getElementById("submit-btn").click();
 })
-

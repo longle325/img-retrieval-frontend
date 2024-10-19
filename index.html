@@ -72,7 +72,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Welcome to StrawSearch!</h5>
+          <h4 class="modal-title">Welcome to StrawSearch!</h4>
         </div>
         <div class="modal-body text-bg-light">
           <div class="input-group">
@@ -94,7 +94,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Submission</h5>
+          <h4 class="modal-title">Submission</h4>
         </div>
         <div class="modal-body text-bg-light">
           <div class="mb-3">
@@ -112,6 +112,20 @@
         </div>
         <div class="modal-footer">
           <button type="button" id="submit-btn" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="check-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Submitted Images</h4>
+        </div>
+        <div class="modal-body text-bg-light">
+          <div class="list-group">
+          </div>
         </div>
       </div>
     </div>
@@ -395,7 +409,7 @@
                 </div>
               </div>
               <div id="searchMeta" class="font-normal">
-                <textarea id="meta" class="font-normal" style="
+                <input id="meta" class="font-normal" style="
                 overflow-x: hidden;
                 overflow-y: hidden;
                 white-space: nowrap;
@@ -408,7 +422,7 @@
                   #dfdfdf 2%,
                   transparent 6%
                 );
-                " placeholder=" E.g: L01_V001, 0"></textarea>
+                " placeholder=" E.g: L01_V001, 0"></input>
               </div>
             </div>
             <div class="scene0" id="transcriptTab" style="display: none">
@@ -506,7 +520,7 @@
         </div>
         <div class="contentGrid" id="content"></div>
         <div class="nearest-keyframes">
-          
+
           <i class='bx bx-x' id="close-near-kf"></i>
         </div>
       </div>

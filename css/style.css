@@ -450,6 +450,10 @@ element.style {
   transition: 0.4s all ease;
 }
 
+.buttonToggle:hover .circle{
+  filter: brightness(80%);
+}
+
 .result-mode p {
   height: 25px;
   margin: 5px;
@@ -604,6 +608,11 @@ div#searchTab {
   font-weight: bold;
   font-size: 14px;
   border-radius: 10px;
+  transition: 0.1s all ease;
+}
+
+#StateOfTemporal:hover {
+  filter: brightness(80%);
 }
 
 html, body {
