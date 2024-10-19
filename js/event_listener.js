@@ -175,14 +175,9 @@ document.addEventListener("keydown", (e) => {
         }
 
         if (chosenImg) {
-          if (rejectImg.includes(chosenImg.getAttribute("src")))
-            createToast("danger", "Oops, this image was rejected before!");
-          else if (queueImg.includes(chosenImg.getAttribute("src")))
-            createToast("danger", "Oops, this image has already been queued!");
-          else if (submitImg.includes(chosenImg.getAttribute("src")))
+          if (submitImg.includes(chosenImg.getAttribute("src")))
             createToast("danger", "Oops, this image has already been submitted!");
           else {
-            socket.emit("submit-image", chosenImg.src);
             let videoID = chosenImg.src.split("/").slice(-2)[0];
             let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
             document.getElementById("video-id").value = videoID;

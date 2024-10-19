@@ -142,14 +142,17 @@ document.addEventListener("keydown", function (e) {
         }
 
         if (chosenImg) {
-          let videoID = chosenImg.src.split("/").slice(-2)[0];
-          let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
-          document.getElementById("video-id").value = videoID;
-          document.getElementById("frame-idx").value = frameIdx;
-          submitModel.toggle();
-          document.getElementById("qa-answer").focus();
+          if (submitImg.includes(chosenImg.getAttribute("src")))
+            createToast("danger", "Oops, this image has already been submitted!");
+          else {
+            let videoID = chosenImg.src.split("/").slice(-2)[0];
+            let frameIdx = chosenImg.src.split("/").slice(-1)[0].split(".")[0];
+            document.getElementById("video-id").value = videoID;
+            document.getElementById("frame-idx").value = frameIdx;
+            submitModel.toggle();
+            document.getElementById("qa-answer").focus();
+          }
         }
-
       }
     }
   }
